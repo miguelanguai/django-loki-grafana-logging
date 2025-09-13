@@ -1,0 +1,51 @@
+name: django-grafana-loki
+services:
+  backend:
+    container_name: backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "8000:8000"
+  
+  grafana:
+    build:
+      context: ./grafana
+      dockerfile: Dockerfile
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+
+  loki:
+    image: grafana/loki:3.5.4
+    container_name: loki
+    profiles: [dev]
+    env_file: ./.env
+    ports:
+      - "3100:3100"
+    volumes:
+      - loki_data:/mnt/config
+    command: -config.file=/etc/loki/local-config.yaml
+
+  alloy:
+    image: grafana/alloy:latest
+    container_name: alloy
+    ports:
+      - "12345:12345"
+    volumes:
+      # montaje de archivo de configuracion
+      - ./alloy/config.alloy:/etc/alloy/config.alloy
+      # dar acceso para discovery.docker
+      - /var/run/docker.sock:/var/run/docker.sock
+      # dar acceso para el directorio de archivos log de docker
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    command: run --server.http.listen-addr=0.0.0.0:12345 --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy
+    depends_on:
+      - loki
+
+volumes:
+  grafana_data:
+  loki_data:
