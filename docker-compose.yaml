@@ -10,19 +10,18 @@ services:
   
   grafana:
     build:
-      context: ./grafana
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: grafana/Dockerfile
     container_name: grafana
     ports:
       - "3000:3000"
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning/:/etc/grafana/provisioning/
+      - .:/etc/grafana/provisioning/
 
   loki:
     image: grafana/loki:3.5.4
     container_name: loki
-    profiles: [dev]
     env_file: ./.env
     ports:
       - "3100:3100"
