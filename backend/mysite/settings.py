@@ -149,11 +149,11 @@ LOGGING = {
             "level": "DEBUG",
             "filters": ["require_debug_true"],
             "class": "logging.StreamHandler",
-            "formatter": "simple",
+            "formatter": "verbose",
         },
     },
     "loggers": {
-        "django": {
+        "root": {
             "level": "DEBUG",
             "handlers": ["console"],
             "propagate": True,
